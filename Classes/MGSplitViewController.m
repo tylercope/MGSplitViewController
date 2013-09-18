@@ -232,9 +232,12 @@
 	CGRect fullScreenRect = screen.bounds; // always implicitly in Portrait orientation.
 	CGRect appFrame = screen.applicationFrame;
 	
-	// Find status bar height by checking which dimension of the applicationFrame is narrower than screen bounds.
-	// Little bit ugly looking, but it'll still work even if they change the status bar height in future.
-	float statusBarHeight = MAX((fullScreenRect.size.width - appFrame.size.width), (fullScreenRect.size.height - appFrame.size.height));
+	float statusBarHeight = 0;
+  if ([[[UIDevice currentDevice] systemVersion] floatValue] < 7.0) {
+    // Find status bar height by checking which dimension of the applicationFrame is narrower than screen bounds.
+    // Little bit ugly looking, but it'll still work even if they change the status bar height in future.
+    statusBarHeight = MAX((fullScreenRect.size.width - appFrame.size.width), (fullScreenRect.size.height - appFrame.size.height));
+  }
 	
 	// Initially assume portrait orientation.
 	float width = fullScreenRect.size.width;
@@ -247,7 +250,7 @@
 	}
 	
 	// Account for status bar, which always subtracts from the height (since it's always at the top of the screen).
-	height -= statusBarHeight;
+  height -= statusBarHeight;
 	
 	return CGSizeMake(width, height);
 }
