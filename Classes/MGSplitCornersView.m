@@ -8,8 +8,8 @@
 
 #import "MGSplitCornersView.h"
 
-double deg2Rad(double degrees);
-double rad2Deg(double radians);
+static double deg2Rad(double degrees);
+static double rad2Deg(double radians);
 
 @implementation MGSplitCornersView
 
@@ -39,17 +39,15 @@ double rad2Deg(double radians);
 	
 }
 
-
 #pragma mark -
 #pragma mark Geometry helpers
 
 
 static double deg2Rad(double degrees)
 {
-    // Converts degrees to radians.
-    return degrees * (M_PI / 180.0);
+  // Converts degrees to radians.
+  return degrees * (M_PI / 180.0);
 }
-
 
 #pragma mark -
 #pragma mark Drawing
