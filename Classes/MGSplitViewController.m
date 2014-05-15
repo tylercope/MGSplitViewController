@@ -569,7 +569,7 @@
 		// Create and configure popover for our masterViewController.
 		_hiddenPopoverController = nil;
 		[self.masterViewController viewWillDisappear:NO];
-		_hiddenPopoverController = [[UIPopoverController alloc] initWithContentViewController:self.masterViewController];
+		_hiddenPopoverController = [[WYPopoverController alloc] initWithContentViewController:self.masterViewController];
 		[self.masterViewController viewDidDisappear:NO];
 		
 		// Create and configure _barButtonItem.
@@ -613,7 +613,7 @@
 }
 
 
-- (void)popoverControllerDidDismissPopover:(UIPopoverController *)popoverController
+- (void)popoverControllerDidDismissPopover:(WYPopoverController *)popoverController
 {
 	[self reconfigureForMasterInPopover:NO];
 }

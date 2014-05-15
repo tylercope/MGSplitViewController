@@ -12,7 +12,7 @@
 
 @interface DetailViewController ()
 
-@property (nonatomic, strong) UIPopoverController *popoverController;
+@property (nonatomic, strong) WYPopoverController *popoverController;
 - (void)configureView;
 
 @end
@@ -62,7 +62,7 @@
 - (void)splitViewController:(MGSplitViewController*)svc 
 	 willHideViewController:(UIViewController *)aViewController 
 		  withBarButtonItem:(UIBarButtonItem*)barButtonItem 
-	   forPopoverController: (UIPopoverController*)pc
+	   forPopoverController: (WYPopoverController*)pc
 {
 	//NSLog(@"%@", NSStringFromSelector(_cmd));
 	
@@ -93,7 +93,7 @@
 
 
 - (void)splitViewController:(MGSplitViewController*)svc 
-		  popoverController:(UIPopoverController*)pc 
+		  popoverController:(WYPopoverController*)pc
   willPresentViewController:(UIViewController *)aViewController
 {
 	//NSLog(@"%@", NSStringFromSelector(_cmd));
