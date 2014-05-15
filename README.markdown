@@ -1,3 +1,8 @@
+This fork replaces UIPopoverController with WYPopoverController so that MGSplitViewController can be used on an iPhone. You can find WYPopoverController here...
+
+<https://github.com/nicolaschengdev/WYPopoverController>
+
+
 MGSplitViewController
 =====================
 
