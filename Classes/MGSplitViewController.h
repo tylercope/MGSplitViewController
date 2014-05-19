@@ -33,6 +33,9 @@ typedef enum _MGSplitViewDividerStyle {
 	BOOL _reconfigurePopup;
 	MGSplitViewDividerStyle _dividerStyle; // Meta-setting which configures several aspects of appearance and behaviour.
 	BOOL togglesMasterPopover;
+	BOOL inLayoutSubviews;
+	
+
 }
 
 @property (nonatomic, unsafe_unretained) IBOutlet id <MGSplitViewControllerDelegate> delegate;

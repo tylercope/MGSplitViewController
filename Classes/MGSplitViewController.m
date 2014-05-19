@@ -146,6 +146,7 @@
 
     // fix for iOS 6 layout
     self.view.autoresizesSubviews = NO;
+	inLayoutSubviews = NO;
 }
 
 
@@ -265,6 +266,8 @@
 
 - (void)layoutSubviewsForInterfaceOrientation:(UIInterfaceOrientation)theOrientation withAnimation:(BOOL)animate
 {
+	inLayoutSubviews = YES;
+	
 	if (_reconfigurePopup) {
 		[self reconfigureForMasterInPopover:![self shouldShowMasterForInterfaceOrientation:theOrientation]];
 	}
@@ -490,6 +493,8 @@
 		[self.view bringSubviewToFront:leadingCorners];
 		[self.view bringSubviewToFront:trailingCorners];
 	}
+	
+	inLayoutSubviews = NO;
 }
 
 
@@ -1025,7 +1030,7 @@
 		[_viewControllers addObject:newMaster];
 	}
 	
-	if (changed) {
+	if (changed && !inLayoutSubviews) {
 		[self layoutSubviews];
 	}
 }
@@ -1046,6 +1051,11 @@
 
 - (void)setDetailViewController:(UIViewController *)detail
 {
+	if (detail == nil)
+	{
+		return;
+	}
+	
 	if (!_viewControllers) {
 		_viewControllers = [[NSMutableArray alloc] initWithCapacity:2];
 		[_viewControllers addObject:[NSNull null]];
@@ -1063,7 +1073,7 @@
 		[_viewControllers addObject:detail];
 	}
 	
-	if (changed) {
+	if (changed && !inLayoutSubviews) {
 		[self layoutSubviews];
 	}
 }
