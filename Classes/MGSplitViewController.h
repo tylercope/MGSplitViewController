@@ -57,6 +57,8 @@ typedef enum _MGSplitViewDividerStyle {
 
 @property (nonatomic, readwrite) BOOL togglesMasterPopover; // default is NO.
 
+@property (nonatomic, assign) BOOL useCorners; //Should we bother with laying out corner views. Defaults to NO
+
 // Actions
 - (IBAction)toggleSplitOrientation:(id)sender; // toggles split axis between vertical (left/right; default) and horizontal (top/bottom).
 - (IBAction)toggleMasterBeforeDetail:(id)sender; // toggles position of master view relative to detail view.
