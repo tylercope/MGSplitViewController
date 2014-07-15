@@ -9,7 +9,11 @@
 #import "MGSplitCornersView.h"
 
 static double deg2Rad(double degrees);
+
+#pragma clang diagnostic push
+#pragma clang diagnostic ignored "-Wunused-function"
 static double rad2Deg(double radians);
+#pragma pop
 
 @implementation MGSplitCornersView
 
