@@ -145,8 +145,8 @@
 	_dividerView.backgroundColor = MG_DEFAULT_CORNER_COLOR;
 	_dividerStyle = MGSplitViewDividerStyleThin;
 	
-    // fix for iOS 6 layout
-    self.view.autoresizesSubviews = NO;
+	// fix for iOS 6 layout
+	self.view.autoresizesSubviews = NO;
 	inLayoutSubviews = NO;
 	
 	_useCorners = NO;
@@ -169,12 +169,12 @@
 
 - (BOOL)shouldAutorotateToInterfaceOrientation:(UIInterfaceOrientation)interfaceOrientation
 {
-    if (self.detailViewController)
-    {
-        return [self.detailViewController shouldAutorotateToInterfaceOrientation:interfaceOrientation];
-    }
+	if (self.detailViewController)
+	{
+		return [self.detailViewController shouldAutorotateToInterfaceOrientation:interfaceOrientation];
+	}
 	
-    return YES;
+	return YES;
 }
 
 
@@ -239,10 +239,10 @@
 	// Find status bar height by checking which dimension of the applicationFrame is narrower than screen bounds.
 	// Little bit ugly looking, but it'll still work even if they change the status bar height in future.
 	float statusBarHeight = MAX((fullScreenRect.size.width - appFrame.size.width), (fullScreenRect.size.height - appFrame.size.height));
-    
-    // In iOS 7 the status bar is transparent, so don't adjust for it.
-    if (IOS_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0"))
-        statusBarHeight = 0;
+	
+	// In iOS 7 the status bar is transparent, so don't adjust for it.
+	if (IOS_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0"))
+		statusBarHeight = 0;
 	
 	float navigationBarHeight = 0;
 	if ((self.navigationController)&&(!self.navigationController.navigationBarHidden)) {
@@ -254,15 +254,23 @@
 	float height = fullScreenRect.size.height;
 	
 	// Correct for orientation.
-	if (UIInterfaceOrientationIsLandscape(theOrientation)) {
-		width = height;
-		height = fullScreenRect.size.width;
+	if (!IOS_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0"))
+	{
+		if (UIInterfaceOrientationIsLandscape(theOrientation))
+		{
+			width = height;
+			height = fullScreenRect.size.width;
+		}
 	}
 	
 	// Account for status bar, which always subtracts from the height (since it's always at the top of the screen).
 	height -= statusBarHeight;
 	height -= navigationBarHeight;
-	height -= [self.bottomLayoutGuide length] + 20;
+	height -= [self.bottomLayoutGuide length];
+	if (UIInterfaceOrientationIsPortrait(theOrientation))
+	{
+		height -= 20;
+	}
 	
 	return CGSizeMake(width, height);
 }
@@ -344,8 +352,8 @@
 			if (theView)
 			{
 				theView.frame = masterRect;
-//				DDLogInfo(@"masterRect.size.height: %f", masterRect.size.height);
-//				DDLogInfo(@"masterRect.size.width: %f", masterRect.size.width);
+				//				DDLogInfo(@"masterRect.size.height: %f", masterRect.size.height);
+				//				DDLogInfo(@"masterRect.size.width: %f", masterRect.size.width);
 				if (!theView.superview)
 				{
 					[controller viewWillAppear:NO];
@@ -379,8 +387,8 @@
 			if (theView)
 			{
 				theView.frame = detailRect;
-//				DDLogInfo(@"detailRect.size.height: %f", detailRect.size.height);
-//				DDLogInfo(@"detailRect.size.width: %f", detailRect.size.width);
+				//				DDLogInfo(@"detailRect.size.height: %f", detailRect.size.height);
+				//				DDLogInfo(@"detailRect.size.width: %f", detailRect.size.width);
 				
 				if (!theView.superview)
 				{
