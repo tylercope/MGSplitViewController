@@ -7,7 +7,6 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "WYPopoverController.h"
 
 typedef enum _MGSplitViewDividerStyle {
 	// These names have been chosen to be conceptually similar to those of NSSplitView on Mac OS X.
@@ -17,7 +16,7 @@ typedef enum _MGSplitViewDividerStyle {
 
 @class MGSplitDividerView;
 @protocol MGSplitViewControllerDelegate;
-@interface MGSplitViewController : UIViewController <WYPopoverControllerDelegate> {
+@interface MGSplitViewController : UIViewController <UIPopoverPresentationControllerDelegate> {
 	BOOL _showsMasterInPortrait;
 	BOOL _showsMasterInLandscape;
 	float _splitWidth;
@@ -26,7 +25,7 @@ typedef enum _MGSplitViewDividerStyle {
 	BOOL _masterBeforeDetail;
 	NSMutableArray *_viewControllers;
 	UIBarButtonItem *_barButtonItem; // To be compliant with wacky UISplitViewController behaviour.
-    WYPopoverController *_hiddenPopoverController; // Popover used to hold the master view if it's not always visible.
+	UIViewController *_hiddenPopoverController; // Popover used to hold the master view if it's not always visible.
 	MGSplitDividerView *_dividerView; // View that draws the divider between the master and detail views.
 	NSArray *_cornerViews; // Views to draw the inner rounded corners between master and detail views.
 	float _splitPosition;
@@ -101,7 +100,7 @@ typedef enum _MGSplitViewDividerStyle {
 - (void)splitViewController:(MGSplitViewController*)svc 
 	 willHideViewController:(UIViewController *)aViewController 
 		  withBarButtonItem:(UIBarButtonItem*)barButtonItem 
-	   forPopoverController: (WYPopoverController*)pc;
+	   forPopoverController: (UIViewController*)pc;
 
 // Called when the master view is shown again in the split view, invalidating the button and popover controller.
 - (void)splitViewController:(MGSplitViewController*)svc 
@@ -110,12 +109,12 @@ typedef enum _MGSplitViewDividerStyle {
 
 // Called when the master view is shown in a popover, so the delegate can take action like hiding other popovers.
 - (void)splitViewController:(MGSplitViewController*)svc 
-		  popoverController:(WYPopoverController*)pc
+		  popoverController:(UIViewController*)pc
   willPresentViewController:(UIViewController *)aViewController;
 
 // Called when a popover containing the master view is going to be hidden so the delegate can take action like showing other popovers.  This only happens if togglesMasterPopover is set to YES.
 - (void)splitViewController:(MGSplitViewController*)svc 
-		  popoverController:(WYPopoverController*)pc
+		  popoverController:(UIViewController*)pc
   willDismissViewController:(UIViewController *)aViewController;
 
 // Called when the split orientation will change (from vertical to horizontal, or vice versa).

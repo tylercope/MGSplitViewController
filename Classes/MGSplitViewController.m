@@ -74,7 +74,7 @@
 
 - (BOOL)isLandscape
 {
-	return UIInterfaceOrientationIsLandscape(self.interfaceOrientation);
+	return UIInterfaceOrientationIsLandscape([[UIApplication sharedApplication] statusBarOrientation]);
 }
 
 
@@ -87,7 +87,7 @@
 
 - (BOOL)shouldShowMaster
 {
-	return [self shouldShowMasterForInterfaceOrientation:self.interfaceOrientation];
+	return [self shouldShowMasterForInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
 }
 
 
@@ -199,8 +199,8 @@
 	[self.detailViewController willAnimateRotationToInterfaceOrientation:toInterfaceOrientation duration:duration];
 	
 	// Hide popover.
-	if (_hiddenPopoverController && _hiddenPopoverController.popoverVisible) {
-		[_hiddenPopoverController dismissPopoverAnimated:NO];
+	if (_hiddenPopoverController && _hiddenPopoverController.isViewLoaded && _hiddenPopoverController.view.window) {
+		[_hiddenPopoverController dismissViewControllerAnimated:NO completion:nil];
 	}
 	
 	// Re-tile views.
@@ -542,13 +542,13 @@
 
 - (void)layoutSubviewsWithAnimation:(BOOL)animate
 {
-	[self layoutSubviewsForInterfaceOrientation:self.interfaceOrientation withAnimation:animate];
+	[self layoutSubviewsForInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation] withAnimation:animate];
 }
 
 
 - (void)layoutSubviews
 {
-	[self layoutSubviewsForInterfaceOrientation:self.interfaceOrientation withAnimation:YES];
+	[self layoutSubviewsForInterfaceOrientation:[[UIApplication sharedApplication] statusBarOrientation] withAnimation:YES];
 }
 
 
@@ -616,14 +616,21 @@
 		// Create and configure popover for our masterViewController.
 		_hiddenPopoverController = nil;
 		[self.masterViewController viewWillDisappear:NO];
-		_hiddenPopoverController = [[WYPopoverController alloc] initWithContentViewController:self.masterViewController];
+		_hiddenPopoverController = self.masterViewController;
 		[self.masterViewController viewDidDisappear:NO];
 		
+
 		// Create and configure _barButtonItem.
 		_barButtonItem = [[UIBarButtonItem alloc] initWithTitle:NSLocalizedString(@"Master", nil)
-														  style:UIBarButtonItemStyleBordered
+														  style:UIBarButtonItemStylePlain
 														 target:self
 														 action:(self.togglesMasterPopover ? @selector(toggleMasterPopover:) : @selector(showMasterPopover:))];
+		
+		_hiddenPopoverController.modalPresentationStyle = UIModalPresentationOverFullScreen | UIModalPresentationOverCurrentContext | UIModalPresentationPopover;
+		UIPopoverPresentationController *presentationController = [_hiddenPopoverController popoverPresentationController];
+		presentationController.barButtonItem = _barButtonItem;
+		presentationController.permittedArrowDirections = UIPopoverArrowDirectionAny;
+		presentationController.delegate = self;
 		
 		// Inform delegate of this state of affairs.
 		if (_delegate && [_delegate respondsToSelector:@selector(splitViewController:willHideViewController:withBarButtonItem:forPopoverController:)]) {
@@ -635,10 +642,10 @@
 		
 	} else if (!inPopover && _hiddenPopoverController && _barButtonItem) {
 		// I know this looks strange, but it fixes a bizarre issue with UIPopoverController leaving masterViewController's views in disarray.
-		[_hiddenPopoverController presentPopoverFromRect:CGRectZero inView:self.view permittedArrowDirections:WYPopoverArrowDirectionAny animated:NO];
+		//[_hiddenPopoverController presentPopoverFromRect:CGRectZero inView:self.view permittedArrowDirections:UIPopoverArrowDirectionAny animated:NO];
 		
 		// Remove master from popover and destroy popover, if it exists.
-		[_hiddenPopoverController dismissPopoverAnimated:NO];
+		[_hiddenPopoverController dismissViewControllerAnimated:NO completion:nil];
 		_hiddenPopoverController = nil;
 		
 		// Inform delegate that the _barButtonItem will become invalid.
@@ -660,7 +667,7 @@
 }
 
 
-- (void)popoverControllerDidDismissPopover:(WYPopoverController *)popoverController
+- (void)popoverControllerDidDismissPopover:(UIViewController *)popoverController
 {
 	[self reconfigureForMasterInPopover:NO];
 }
@@ -737,8 +744,8 @@
 
 - (IBAction)toggleMasterView:(id)sender
 {
-	if (_hiddenPopoverController && _hiddenPopoverController.popoverVisible) {
-		[_hiddenPopoverController dismissPopoverAnimated:NO];
+	if (_hiddenPopoverController && _hiddenPopoverController.isViewLoaded && _hiddenPopoverController.view.window) {
+		[_hiddenPopoverController dismissViewControllerAnimated:NO completion:nil];
 	}
 	
 	if (![self isShowingMaster]) {
@@ -776,7 +783,7 @@
 	if (!_hiddenPopoverController)
 		return;
 	
-	if (_hiddenPopoverController.popoverVisible) {
+	if (_hiddenPopoverController.isViewLoaded && _hiddenPopoverController.view.window) {
 		
 		[self hideMasterPopover:sender];
 		
@@ -791,7 +798,7 @@
 
 - (IBAction)showMasterPopover:(id)sender
 {
-	if (_hiddenPopoverController && !(_hiddenPopoverController.popoverVisible)) {
+	if (_hiddenPopoverController && !(_hiddenPopoverController.isViewLoaded && _hiddenPopoverController.view.window)) {
 		// Inform delegate.
 		if (_delegate && [_delegate respondsToSelector:@selector(splitViewController:popoverController:willPresentViewController:)]) {
 			[(NSObject <MGSplitViewControllerDelegate> *)_delegate splitViewController:self
@@ -800,7 +807,7 @@
 		}
 		
 		// Show popover.
-		[_hiddenPopoverController presentPopoverFromBarButtonItem:(sender ? sender : _barButtonItem) permittedArrowDirections:WYPopoverArrowDirectionAny animated:YES];
+		[self presentViewController:_hiddenPopoverController animated: YES completion: nil];
 	}
 }
 
@@ -808,7 +815,7 @@
 - (IBAction)hideMasterPopover:(id)sender
 {
 	
-	if(_hiddenPopoverController && _hiddenPopoverController.popoverVisible) {
+	if(_hiddenPopoverController && _hiddenPopoverController.isViewLoaded && _hiddenPopoverController.view.window) {
 		
 		if (_delegate && [_delegate respondsToSelector:@selector(splitViewController:popoverController:willDismissViewController:)]) {
 			
@@ -816,7 +823,7 @@
 			
 		}
 		
-		[_hiddenPopoverController dismissPopoverAnimated:YES];
+		[_hiddenPopoverController dismissViewControllerAnimated:YES completion:nil];
 		
 	}
 	
@@ -854,8 +861,8 @@
 		_showsMasterInPortrait = flag;
 		
 		if (![self isLandscape]) { // i.e. if this will cause a visual change.
-			if (_hiddenPopoverController && _hiddenPopoverController.popoverVisible) {
-				[_hiddenPopoverController dismissPopoverAnimated:NO];
+			if (_hiddenPopoverController && _hiddenPopoverController.isViewLoaded && _hiddenPopoverController.view.window) {
+				[_hiddenPopoverController dismissViewControllerAnimated:NO completion:nil];
 			}
 			
 			// Rearrange views.
@@ -878,8 +885,8 @@
 		_showsMasterInLandscape = flag;
 		
 		if ([self isLandscape]) { // i.e. if this will cause a visual change.
-			if (_hiddenPopoverController && _hiddenPopoverController.popoverVisible) {
-				[_hiddenPopoverController dismissPopoverAnimated:NO];
+			if (_hiddenPopoverController && _hiddenPopoverController.isViewLoaded && _hiddenPopoverController.view.window) {
+				[_hiddenPopoverController dismissViewControllerAnimated:NO completion:nil];
 			}
 			
 			// Rearrange views.
@@ -899,8 +906,8 @@
 - (void)setVertical:(BOOL)flag
 {
 	if (flag != _vertical) {
-		if (_hiddenPopoverController && _hiddenPopoverController.popoverVisible) {
-			[_hiddenPopoverController dismissPopoverAnimated:NO];
+		if (_hiddenPopoverController && _hiddenPopoverController.isViewLoaded && _hiddenPopoverController.view.window) {
+			[_hiddenPopoverController dismissViewControllerAnimated:NO completion:nil];
 		}
 		
 		_vertical = flag;
@@ -924,8 +931,8 @@
 - (void)setMasterBeforeDetail:(BOOL)flag
 {
 	if (flag != _masterBeforeDetail) {
-		if (_hiddenPopoverController && _hiddenPopoverController.popoverVisible) {
-			[_hiddenPopoverController dismissPopoverAnimated:NO];
+		if (_hiddenPopoverController && _hiddenPopoverController.isViewLoaded && _hiddenPopoverController.view.window) {
+			[_hiddenPopoverController dismissViewControllerAnimated:NO completion:nil];
 		}
 		
 		_masterBeforeDetail = flag;
@@ -948,7 +955,7 @@
 	// Check to see if delegate wishes to constrain the position.
 	float newPosn = posn;
 	BOOL constrained = NO;
-	CGSize fullSize = [self splitViewSizeForOrientation:self.interfaceOrientation];
+	CGSize fullSize = [self splitViewSizeForOrientation:[[UIApplication sharedApplication] statusBarOrientation]];
 	if (_delegate && [_delegate respondsToSelector:@selector(splitViewController:constrainSplitPosition:splitViewSize:)]) {
 		newPosn = [_delegate splitViewController:self constrainSplitPosition:newPosn splitViewSize:fullSize];
 		constrained = YES; // implicitly trust delegate's response.
@@ -963,8 +970,8 @@
 	_splitPosition = newPosn;
 	
 	if (constrained) {
-		if (_hiddenPopoverController && _hiddenPopoverController.popoverVisible) {
-			[_hiddenPopoverController dismissPopoverAnimated:NO];
+		if (_hiddenPopoverController && _hiddenPopoverController.isViewLoaded && _hiddenPopoverController.view.window) {
+			[_hiddenPopoverController dismissViewControllerAnimated:NO completion:nil];
 		}
 		
 		// Inform delegate.
@@ -1182,8 +1189,8 @@
 
 - (void)setDividerStyle:(MGSplitViewDividerStyle)newStyle
 {
-	if (_hiddenPopoverController && _hiddenPopoverController.popoverVisible) {
-		[_hiddenPopoverController dismissPopoverAnimated:NO];
+	if (_hiddenPopoverController && _hiddenPopoverController.isViewLoaded && _hiddenPopoverController.view.window) {
+		[_hiddenPopoverController dismissViewControllerAnimated:NO completion:nil];
 	}
 	
 	// We don't check to see if newStyle equals _dividerStyle, because it's a meta-setting.

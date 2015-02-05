@@ -12,7 +12,7 @@
 
 @interface DetailViewController ()
 
-@property (nonatomic, strong) WYPopoverController *popoverController;
+@property (nonatomic, strong) UIViewController *popoverController;
 - (void)configureView;
 
 @end
@@ -39,7 +39,7 @@
     }
 	
     if (popoverController != nil) {
-        [popoverController dismissPopoverAnimated:YES];
+        [popoverController dismissViewControllerAnimated:YES completion:nil];
     }        
 }
 
@@ -62,7 +62,7 @@
 - (void)splitViewController:(MGSplitViewController*)svc 
 	 willHideViewController:(UIViewController *)aViewController 
 		  withBarButtonItem:(UIBarButtonItem*)barButtonItem 
-	   forPopoverController: (WYPopoverController*)pc
+	   forPopoverController: (UIViewController*)pc
 {
 	//NSLog(@"%@", NSStringFromSelector(_cmd));
 	
@@ -93,7 +93,7 @@
 
 
 - (void)splitViewController:(MGSplitViewController*)svc 
-		  popoverController:(WYPopoverController*)pc
+		  popoverController:(UIPopoverController*)pc
   willPresentViewController:(UIViewController *)aViewController
 {
 	//NSLog(@"%@", NSStringFromSelector(_cmd));

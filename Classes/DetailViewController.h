@@ -9,17 +9,17 @@
 #import <UIKit/UIKit.h>
 #import "MGSplitViewController.h"
 
-@interface DetailViewController : UIViewController <WYPopoverControllerDelegate, MGSplitViewControllerDelegate> {
+@interface DetailViewController : UIViewController <UIPopoverControllerDelegate, MGSplitViewControllerDelegate> {
 	IBOutlet MGSplitViewController *splitController;
 	IBOutlet UIBarButtonItem *toggleItem;
 	IBOutlet UIBarButtonItem *verticalItem;
 	IBOutlet UIBarButtonItem *dividerStyleItem;
 	IBOutlet UIBarButtonItem *masterBeforeDetailItem;
-    WYPopoverController *popoverController;
-    UIToolbar *toolbar;
+	UIViewController *popoverController;
+	UIToolbar *toolbar;
     
-    id detailItem;
-    UILabel *detailDescriptionLabel;
+	id detailItem;
+	UILabel *detailDescriptionLabel;
 }
 
 @property (nonatomic, strong) IBOutlet UIToolbar *toolbar;
