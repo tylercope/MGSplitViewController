@@ -24,8 +24,6 @@
 #define MG_ANIMATION_CHANGE_SPLIT_ORIENTATION	@"ChangeSplitOrientation"	// Animation ID for internal use.
 #define MG_ANIMATION_CHANGE_SUBVIEWS_ORDER		@"ChangeSubviewsOrder"	// Animation ID for internal use.
 
-#define IOS_VERSION_GREATER_THAN_OR_EQUAL_TO(v)  ([[[UIDevice currentDevice] systemVersion] compare:v options:NSNumericSearch] != NSOrderedAscending)
-
 @interface MGSplitViewController (MGPrivateMethods)
 
 - (void)setup;
@@ -229,52 +227,42 @@
 	[self.detailViewController willAnimateSecondHalfOfRotationFromInterfaceOrientation:fromInterfaceOrientation duration:duration];
 }
 
-
 - (CGSize)splitViewSizeForOrientation:(UIInterfaceOrientation)theOrientation
 {
-	UIScreen *screen = [UIScreen mainScreen];
-	CGRect fullScreenRect = screen.bounds; // always implicitly in Portrait orientation.
-	CGRect appFrame = screen.applicationFrame;
-	
-	// Find status bar height by checking which dimension of the applicationFrame is narrower than screen bounds.
-	// Little bit ugly looking, but it'll still work even if they change the status bar height in future.
-	float statusBarHeight = MAX((fullScreenRect.size.width - appFrame.size.width), (fullScreenRect.size.height - appFrame.size.height));
-	
-	// In iOS 7 the status bar is transparent, so don't adjust for it.
-	if (IOS_VERSION_GREATER_THAN_OR_EQUAL_TO(@"7.0"))
-		statusBarHeight = 0;
-	
-	float navigationBarHeight = 0;
-	if ((self.navigationController)&&(!self.navigationController.navigationBarHidden)) {
-		navigationBarHeight = self.navigationController.navigationBar.frame.size.height;
-	}
-	
-	// Initially assume portrait orientation.
-	float width = fullScreenRect.size.width;
-	float height = fullScreenRect.size.height;
-	
-	// Correct for orientation.
-	if (!IOS_VERSION_GREATER_THAN_OR_EQUAL_TO(@"8.0"))
-	{
-		if (UIInterfaceOrientationIsLandscape(theOrientation))
-		{
-			width = height;
-			height = fullScreenRect.size.width;
-		}
-	}
-	
-	// Account for status bar, which always subtracts from the height (since it's always at the top of the screen).
-	height -= statusBarHeight;
-	height -= navigationBarHeight;
-	height -= [self.bottomLayoutGuide length];
-	if (UIInterfaceOrientationIsPortrait(theOrientation))
-	{
-		height -= 20;
-	}
-	
-	return CGSizeMake(width, height);
+    UIScreen *screen = [UIScreen mainScreen];
+    CGRect fullScreenRect = screen.bounds; // always implicitly in Portrait orientation.
+    CGRect appFrame = screen.applicationFrame;
+    
+    // Find status bar height by checking which dimension of the applicationFrame is narrower than screen bounds.
+    // Little bit ugly looking, but it'll still work even if they change the status bar height in future.
+    float statusBarHeight = MAX((fullScreenRect.size.width - appFrame.size.width), (fullScreenRect.size.height - appFrame.size.height));
+    
+    // In iOS 7 the status bar is transparent, so don't adjust for it.
+    if (NSFoundationVersionNumber >= NSFoundationVersionNumber_iOS_7_0) {
+        statusBarHeight = 0;
+    }
+    
+    float navigationBarHeight = 0;
+    if ((self.navigationController)&&(!self.navigationController.navigationBarHidden)) {
+        navigationBarHeight = self.navigationController.navigationBar.frame.size.height;
+    }
+    
+    // Initially assume portrait orientation.
+    float width = fullScreenRect.size.width;
+    float height = fullScreenRect.size.height;
+    
+    // Correct for orientation (only for iOS7.1 and earlier, since iOS8 it will do it automatically).
+    if (NSFoundationVersionNumber <= NSFoundationVersionNumber_iOS_7_1 && UIInterfaceOrientationIsLandscape(theOrientation)) {
+        width = height;
+        height = fullScreenRect.size.width;
+    }
+    
+    // Account for status bar, which always subtracts from the height (since it's always at the top of the screen).
+    height -= statusBarHeight;
+    height -= navigationBarHeight;
+    
+    return CGSizeMake(width, height);
 }
-
 
 - (void)layoutSubviewsForInterfaceOrientation:(UIInterfaceOrientation)theOrientation withAnimation:(BOOL)animate
 {
